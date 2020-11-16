@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <title>Sinatra Docker!</title>
+</head>
+
+<body>
+    <h1>A Sinatra app served by Nginx on Docker with Postgres powered with the ORM Sequel</h1>
+    <p>
+        Nginx and Docker powers this page with a mount bind of the source code.
+        Any changes in the <strong>/views/index.erb</strong> file will be displayed if the 
+        page is refreshed, with <strong>CTRL-R</strong>.
+    
+        This happens because there is a mount bind between the current directory and the
+        container's source code directory. In the same way, we display info on the request,
+        and the data is saved is the database, as well as logged in a textfile mount binded to 
+        the host (/log/requests.txt & /log/db/log from Sequel/Postgres), so we can visualize the data from the container in the computer.
+    </p>
+    <div class='aligned'>
+        <img src="logo.png">
+        <img src="sinatra.jpeg">
+        <img src="nginx.png">
+        <img src="postgres.png">
+        <img src="ruby-sequel.png">
+    </div>
+    <br/>
+    <hr>
+    <br>
+    <div>
+        <%= result %> 
+    </div>
+</body>
+
+</html>

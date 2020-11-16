@@ -1,0 +1,27 @@
+body {
+    width: 98%;
+    margin: 0 auto;
+    font-family: Tahoma, Verdana, Arial, sans-serif;
+    text-align: justify;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1px;
+    margin: 1px;
+    border: 1px solid;
+    width: 20%;
+    
+}
+/* img.resize {
+    height: 20%;
+    width: 10%;
+} */
+
+.aligned {
+    display: flex;
+    flex-direction: row;
+    width: 95%;
+}
