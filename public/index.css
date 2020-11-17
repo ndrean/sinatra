@@ -12,16 +12,20 @@ img {
     padding: 1px;
     margin: 1px;
     border: 1px solid;
-    width: 20%;
-    
+    height: 10%;
+    max-width: 20%;
+    object-fit: scale-down
 }
-/* img.resize {
-    height: 20%;
-    width: 10%;
-} */
+
+th, td {
+    width: fit-content;
+    border: solid 1px;
+    padding: 5px 20px;
+}
 
 .aligned {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     width: 95%;
 }

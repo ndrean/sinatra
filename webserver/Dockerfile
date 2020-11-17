@@ -8,4 +8,5 @@ RUN apt-get update \
 
 COPY proxy.conf /etc/nginx/conf.d/default.conf
 
+# use the exec form of CMD so nginx stops on SIGTERM
 CMD ["/usr/sbin/nginx", "-g", "daemon off;"]

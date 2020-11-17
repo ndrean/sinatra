@@ -7,30 +7,47 @@
 </head>
 
 <body>
-    <h1>A Sinatra app served by Nginx on Docker with Postgres powered with the ORM Sequel</h1>
-    <p>
-        Nginx and Docker powers this page with a mount bind of the source code.
-        Any changes in the <strong>/views/index.erb</strong> file will be displayed if the 
-        page is refreshed, with <strong>CTRL-R</strong>.
-    
-        This happens because there is a mount bind between the current directory and the
-        container's source code directory. In the same way, we display info on the request,
-        and the data is saved is the database, as well as logged in a textfile mount binded to 
-        the host (/log/requests.txt & /log/db/log from Sequel/Postgres), so we can visualize the data from the container in the computer.
+    <h3>A multi-instances of a Sinatra-Puma app on Docker served by Postgres/Sequel, reverse-proxied by Nginx.</h3>
+    <p> The web-server Nginx serves (not yet) the <strong>static files</strong> (css, png, jpeg) and <strong>load balances</strong> with Docker's DNS the 5 instances/containers of the app.
+    The app saves the queries to the page in a Postgres database powered with the ORM Sequel.</p>
+    <code>docker-compose up --scale webapp=5</code> 
+    <br>  
+    <p> Each page refresh is recorded in Postgres, and the logs are saved to '/dev/stdout' (the console) with Sequel.
+    The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
+    </p>      
+    <div>
+    <%= test %>
+    <hr>    
+    <table class="aligned">
+        <tr>
+            <th>Timestamp</th>
+            <th>Client IP</th>
+            <th>Server (Container)</th>
+            <th>Path</th>
+        </tr>
+        <% queries.each do |query| %>
+            <tr>
+                <td><%= query[:requested_at] %></td>
+                <td><%= query[:ip] %></td>
+                <td><%= query[:host] %></td>
+                <td><%= query[:path] %></td>
+            </tr>
+        <% end %>
+    </table>
+    </div>
+    <hr>
+    <p> Nginx and Docker serves this page with a mount bind of the source code. Any changes
+    in the <strong>/views/index.erb</strong> file will be displayed if the page is refreshed, with <strong>CTRL-R</strong>.
     </p>
     <div class='aligned'>
-        <img src="logo.png">
+<img src="logo.png">
         <img src="sinatra.jpeg">
         <img src="nginx.png">
         <img src="postgres.png">
-        <img src="ruby-sequel.png">
+        <img src="sequel.png">
+        <img src="puma.jpeg">
     </div>
-    <br/>
-    <hr>
-    <br>
-    <div>
-        <%= result %> 
-    </div>
+    
 </body>
 
 </html>
