@@ -4,5 +4,5 @@ threads threads_count, threads_count
 
 rackup      DefaultRackup
 
-port        ENV['PORT']     || 9292
-environment ENV['RACK_ENV'] || 'development'
+port        ENV.fetch('PORT')     || 9292
+environment ENV.fetch('RACK_ENV') || 'development'

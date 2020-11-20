@@ -5,6 +5,9 @@ body {
     text-align: justify;
 }
 
+.btn-center {
+    text-align: center;
+}
 img {
     display: block;
     margin-left: auto;

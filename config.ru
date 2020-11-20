@@ -4,11 +4,12 @@ require 'dotenv/load'
 
 Bundler.require
 
-require './app'
+require_relative './app'
 
+# compressing the data :)
 use Rack::Deflater
 
 run App
 
-# starting the development server Puma with rackup,
+# rackup will start the app server Puma
 # and Sinatra will be loaded via Bundler.

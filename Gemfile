@@ -8,5 +8,6 @@ gem 'nio4r', '~> 2.5', '>= 2.5.4'
 
 gem 'sequel'
 gem 'pg'
+gem 'sequel_pg', :require=>'sequel'
 
 gem 'dotenv'

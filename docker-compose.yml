@@ -4,44 +4,50 @@ services:
   pg:
     image: postgres:9.6-alpine
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgrs
-      - POSTGRES_DB=test
-    volumes: # create a bind mount to pass file that executes SQL
+      - POSTGRES_URL
+    volumes: # create a bind mount to pass file that executes tablea creation by SQL
       - ./sql/create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
       - pgdata:/var/lib/postgresql/data
 
   webapp: 
-    image: webapp:wait_for_pg
     build:
       context: .
       dockerfile: Dockerfile
-    volumes: # to mont bind the code and get the db logs
+    volumes: # to mount bind the code (and get the db logs)
       - .:/app
-    # ports:
+    # ports: # remove if multiple instances of the app are run
     #   - 9292:9292
     depends_on: 
       - pg
     environment:
-      - POSTGRES_DB
-      - POSTGRES_PASSWORD
-      - POSTGRES_USER
       - POSTGRES_URL
 
   webserver:
-    image: weberserver:wait_for_webapp
+    # image: ndrean/weberserver:latest
     build: 
       context: ./webserver
       dockerfile: Dockerfile
     depends_on:
       - webapp
-    volumes:
+    volumes: # to mount bind the static files for Nginx to serve isntead of Puma
       - ./public:/usr/share/nginx/html:ro
+    environment:
+      - PROXY_UPSTREAM
     ports:
       - 8080:8080
     command: nginx -g 'daemon off;'
 
-  
+  # client:
+  #   image:
+  #   build: 
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - POSTGRES_DB
+  #     - POSTGRES_PASSWORD
+  #     - POSTGRES_USER
+  #     - POSTGRES_HOST
+
 volumes:
   pgdata:
 

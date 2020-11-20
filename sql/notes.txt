@@ -1,0 +1,3 @@
+psql -U postgres
+
+psql -h localhost -d mydatabase -U myuser
