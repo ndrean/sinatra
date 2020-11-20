@@ -31,7 +31,8 @@ class App < Sinatra::Base
 
     get '/clean' do
          DB[:requests].delete
-        erb :index , locals: {  queries: req.reverse(:requested_at).limit(8) }
+         redirect '/'
+        # erb :index , locals: {  queries: req.reverse(:requested_at).limit(8) }
     end
-    
+
 end
