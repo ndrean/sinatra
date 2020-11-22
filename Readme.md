@@ -74,7 +74,3 @@ Sequel.extension :seed
 
 Sequel::Seeder.apply(DB,"db/seeds")
 ```
-
-<script>
-         document.getElementById('restart').onclick = document.location.reload();
-    </script>

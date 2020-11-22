@@ -21,24 +21,43 @@
     The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
     </p>
     <p class="btn-center"> <button id='restart'style="font-size:24px; color:blue">Reload !</button></p>    
+    <p>
+        <form action="/clean" method="get" class="btn-center" >
+            <input type="submit" value="Clean!" style="color:red">
+        </form>
+    </p>
+    <hr>
     <div>
-    <hr>    
-    <table class="aligned">
-        <tr>
-            <th>Timestamp</th>
-            <th>Client IP</th>
-            <th>Server (Container)</th>
-            <th>Path</th>
-        </tr>
-        <% queries.each do |query| %>
-            <tr>
-                <td><%= query[:requested_at] %></td>
-                <td><%= query[:ip] %></td>
-                <td><%= query[:host] %></td>
-                <td><%= query[:path] %></td>
-            </tr>
-        <% end %>
-    </table>
+    <hr>  
+    <div style="display: grid; grid-template-columns: 65vw 30vw;"> 
+        <div style="grid-column:1">
+            <table class="aligned">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Client IP</th>
+                    <th>Server (Container)</th>
+                    <th>Path</th>
+                </tr>
+                <% queries.each do |query| %>
+                    <tr>
+                        <td><%= query[:requested_at] %></td>
+                        <td><%= query[:ip] %></td>
+                        <td><%= query[:host] %></td>
+                        <td><%= query[:path] %></td>
+                    </tr>
+                <% end %>
+            </table>
+        </div> 
+        
+        <div style="grid-column:2;" class="lb">
+
+            <div class="servers" >
+                <img  src="server.png" alt="server" >
+                <span ><%= server %></span>
+            </div>
+            
+                   
+        </div>
     </div>
     <hr>
     <p> Sinatra is served by Puma, and Nginx and Docker serves this page with mount binds. The source code is binded so
@@ -47,12 +66,12 @@
     in the docker-compose (instead of a COPY command in the Dockerfile of nginx). 
     </p>
     <div class='aligned'>
-        <img src="docker.webp" alt="docker">
-        <img src="sinatra.webp" alt="sinatra">
-        <img src="nginx.webp" alt="nginx"> 
-        <img src="postgres.webp" alt="postgres">
-        <img src="sequel.webp" alt="sequel">
-        <img src="puma.webp" alt="puma">
+        <img class="technos" src="docker.webp" alt="docker">
+        <img class="technos" src="sinatra.webp" alt="sinatra">
+        <img class="technos" src="nginx.webp" alt="nginx"> 
+        <img class="technos" src="postgres.webp" alt="postgres">
+        <img class="technos" src="sequel.webp" alt="sequel">
+        <img class="technos" src="puma.webp" alt="puma">
     </div>
     
     <script src="reload.js"></script>

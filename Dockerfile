@@ -1,6 +1,6 @@
 FROM ruby:2.7.2-alpine
 
-RUN apk update && apk add build-base postgresql-dev
+RUN apk update && apk add build-base postgresql-dev curl net-tools bind-tools
 
 WORKDIR /app
 COPY Gemfile Gemfile.lock ./
