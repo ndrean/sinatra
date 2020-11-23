@@ -1,4 +1,4 @@
-document.getElementById("restart").addEventListener("click", () => {
+document.getElementById("reload").addEventListener("click", () => {
   console.log("clic");
   document.location.reload();
 });

@@ -40,7 +40,7 @@ class App < Sinatra::Base
             path: request.path_info,  
             requested_at: Time.now.strftime("%H:%M:%S:%L")
         )
-        # servers = req.distinct.select(:host)
+        
         hits_per_server = req.group_and_count(:host)
         counts = req.count
         
@@ -49,8 +49,7 @@ class App < Sinatra::Base
             # servers: servers ,
             active: host,
             figures: hits_per_server,
-            counts: counts
-            
+            counts: counts 
         }
     end
 

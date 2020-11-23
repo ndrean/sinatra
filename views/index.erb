@@ -10,20 +10,25 @@
 </head>
 
 <body>
-    <h3>Load balancing instances of a Sinatra-Puma app on Docker served by Postgres/Sequel, reverse-proxied by Nginx.</h3>
+    <h2>Load balancing instances of a Sinatra-Puma app on Docker served by Postgres/Sequel, reverse-proxied by Nginx.</h2>
+    
     <p> The app server Puma serves Sinatra for the dynamic part: queries to the database and server redering dynamic html).
-    The web-server Nginx serves the <strong>static files</strong> (css, png, jpeg) and <strong>load balances</strong>
-    with Docker's DNS when 5 instances/containers of the app are launched.
-    The app saves the queries to the page in a Postgres database powered with the ORM Sequel.</p>
-    <code>docker-compose up --scale webapp=5</code> 
+    </p>
+    <p>
+    The web-server Nginx serves the <strong>static files</strong> (css, png, jpeg,js) instead of Puma.
+    </p>
+    <p>
+    Nginx  <strong>load balances</strong> with Docker's DNS the 8 instances/containers of the app.
+    </p>    
+    <code>docker-compose up --scale webapp=8</code> 
     <br>  
-    <p> Each page refresh is recorded in Postgres with the ORM Sequel (using Sequel_pg), and the logs are saved to '/dev/stdout' (the console) with Sequel.
+    <p> Each page refresh is recorded in Postgres with the ORM Sequel (using the <em>sequel_pg</em> module), and the logs are saved to '/dev/stdout' (the console) with Sequel.
     The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
     </p>
-    <p class="btn-center"> <button id='restart'style="font-size:24px; color:blue">Reload !</button></p>    
+    <p class="btn-center"> <button id='reload'>Reload !</button></p>    
     <p>
         <form action="/clean" method="get" class="btn-center" >
-            <input type="submit" value="Clean!" style="color:red">
+            <input type="submit" value="Reset!" style="color:red; font-size:28px">
         </form>
     </p>
     <hr>
@@ -60,10 +65,9 @@
             </table>
         </div> 
     <hr>
-    <p> Sinatra is served by Puma, and Nginx and Docker serves this page with mount binds. The source code is binded so
-    any changes in the <strong>/views/index.erb</strong> file will be displayed if the page is refreshed (the directive volumes: .:/app in the docker-compose.yml).
-    Then the static files  are binded to nginx so serve them instead of Puma: the folder 'app/public' with the directive volumes: ./public:/usr/share/nginx/html:ro 
-    in the docker-compose (instead of a COPY command in the Dockerfile of nginx). 
+    <p> The source code is mount bind so any change is the source code only needs `docker-compose up`.</p>
+    <p> The static files  are mont binded to nginx so any changes in the <strong>/views/index.erb</strong> 
+    file will be displayed when the page is refreshed. 
     </p>
     <div class='tech-grid'>
         <img class="technos" src="docker.webp" alt="docker">
