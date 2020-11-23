@@ -1,8 +1,15 @@
 body {
     width: 98%;
-    margin: 0 auto;
+    margin: 1px auto;
     font-family: Tahoma, Verdana, Arial, sans-serif;
     text-align: justify;
+}
+
+h3 {
+    border: 1px solid;
+    border-radius: 5px;
+    margin: 40px;
+    padding: 10px;
 }
 
 .btn-center {
@@ -11,53 +18,67 @@ body {
 
 .lb {
     display:flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    height:50%;
+    flex-flow: row wrap;
+    align-items: stretch;
+    text-align: center;
 }
 
 
 .servers {
     /* display: block; */
-    height: 35%;
-    width: 30%
+    width: 20%
 }
 
 .servers span {
     text-align: center;
-    width: 100%;
+    width: 90%;
     margin: 0;
-    font-size: 12px;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .servers img {
     width:100%;
-    height:100%;
+    height:80%;
     object-fit: scale-down
 }
 
-
-.technos {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 1px;
-    margin: 1px;
-    border: 1px solid;
-    height: 10%;
-    max-width: 20%;
-    object-fit: scale-down
+.aligned {
+    display: flex;
+    justify-content: center;
 }
-
 th, td {
     width: fit-content;
     border: solid 1px;
     padding: 5px 20px;
 }
 
-.aligned {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 95%;
+.tech-grid {
+    display: grid;
+    grid-gap: 1rem;
+    margin: 0 auto;
+    grid-template-columns: repeat(2, 1fr);
+
+}
+
+.technos {
+    grid-auto-flow: dense;
+    object-fit: scale-down;
+}
+
+@media (min-width: 540px) {
+    .tech-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 720px) {
+    .tech-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (min-width: 900px) {
+    .tech-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }

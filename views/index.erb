@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <h3>A multi-instances of a Sinatra-Puma app on Docker served by Postgres/Sequel, reverse-proxied by Nginx.</h3>
+    <h3>Load balancing instances of a Sinatra-Puma app on Docker served by Postgres/Sequel, reverse-proxied by Nginx.</h3>
     <p> The app server Puma serves Sinatra for the dynamic part: queries to the database and server redering dynamic html).
     The web-server Nginx serves the <strong>static files</strong> (css, png, jpeg) and <strong>load balances</strong>
     with Docker's DNS when 5 instances/containers of the app are launched.
@@ -27,11 +27,22 @@
         </form>
     </p>
     <hr>
-    <div>
+    
+    <div class="lb">
+        <% figures.each do |server| %>
+            <div class="servers" >
+                <img  src="server.png" alt="server" >
+                <span><%= server[:host] if active == server[:host] %>: &nbsp </span>
+                <span><%= server[:count] *100 / counts %> %</span>
+
+            </div>
+        <% end %>
+        
+        
+    </div>
     <hr>  
-    <div style="display: grid; grid-template-columns: 65vw 30vw;"> 
-        <div style="grid-column:1">
-            <table class="aligned">
+        <div class="aligned">
+            <table >
                 <tr>
                     <th>Timestamp</th>
                     <th>Client IP</th>
@@ -40,7 +51,7 @@
                 </tr>
                 <% queries.each do |query| %>
                     <tr>
-                        <td><%= query[:requested_at] %></td>
+                        <td><%= query[:requested_at]     %></td>
                         <td><%= query[:ip] %></td>
                         <td><%= query[:host] %></td>
                         <td><%= query[:path] %></td>
@@ -48,24 +59,13 @@
                 <% end %>
             </table>
         </div> 
-        
-        <div style="grid-column:2;" class="lb">
-
-            <div class="servers" >
-                <img  src="server.png" alt="server" >
-                <span ><%= server %></span>
-            </div>
-            
-                   
-        </div>
-    </div>
     <hr>
     <p> Sinatra is served by Puma, and Nginx and Docker serves this page with mount binds. The source code is binded so
     any changes in the <strong>/views/index.erb</strong> file will be displayed if the page is refreshed (the directive volumes: .:/app in the docker-compose.yml).
     Then the static files  are binded to nginx so serve them instead of Puma: the folder 'app/public' with the directive volumes: ./public:/usr/share/nginx/html:ro 
     in the docker-compose (instead of a COPY command in the Dockerfile of nginx). 
     </p>
-    <div class='aligned'>
+    <div class='tech-grid'>
         <img class="technos" src="docker.webp" alt="docker">
         <img class="technos" src="sinatra.webp" alt="sinatra">
         <img class="technos" src="nginx.webp" alt="nginx"> 

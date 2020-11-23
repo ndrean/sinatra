@@ -11,6 +11,7 @@ COPY . .
 # RUN gem install bundler:2.1.4 && bundle install
 # RUN gem install -g Gemfile
 
+ENV POSTGRES_URL=postgres://myuser@gp/test
 
 EXPOSE 9292
 

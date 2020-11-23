@@ -23,7 +23,7 @@ class App < Sinatra::Base
             logger: Logger.new('/dev/stdout')
         )
     req = DB[:requests]
-
+    servers=[]
     
     # Count number of active containers: needed unix socket connection with Docker daemon
     # get '/count' do
@@ -33,16 +33,28 @@ class App < Sinatra::Base
     # end
 
     get '/' do
+        host = Socket.gethostname
         req.insert(
             ip: request.ip,   
-            host: Socket.gethostname, 
+            host: host, 
             path: request.path_info,  
-            requested_at: Time.now
+            requested_at: Time.now.strftime("%H:%M:%S:%L")
         )
-        erb :index , locals: {  queries: req.reverse(:requested_at).limit(8), server: Socket.gethostname  }
+        # servers = req.distinct.select(:host)
+        hits_per_server = req.group_and_count(:host)
+        counts = req.count
+        
+        erb :index , locals: {  
+            queries: req.reverse(:requested_at).limit(8),
+            # servers: servers ,
+            active: host,
+            figures: hits_per_server,
+            counts: counts
+            
+        }
     end
 
-    delete '/clean  ' do
+    get '/clean' do
          DB[:requests].delete
         redirect env['HTTP_REFERER']
     end

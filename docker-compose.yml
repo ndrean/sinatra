@@ -14,16 +14,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    tmpfs: /tmp # ?? ot volumes: - type:tmpfs - src,-dst...??
     volumes: # to mount bind the code (and get the db logs)
       - .:/app:cached
-      - bundle:/usr/local/bundle
+      - bundle:/usr/local/bundle:ro
+      # below test by monting docker socket of the host to get # count containers
       # - /var/run/docker.sock:/var/run/docker.sock
-    # ports: # remove if multiple instances of the app are run
+    # ports: # removed to be able to run multiple instances of the app: nginx L.B.
     #   - 9292:9292
     depends_on: 
       - pg
     environment:
       - POSTGRES_URL
+      # - PIDFILE
 
   webserver:
     image: ndrean/webserver:latest
@@ -32,13 +35,15 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - webapp
-    volumes: # to mount bind the static files for Nginx to serve isntead of Puma
+    volumes: # to mount bind the static files for Nginx to serve instead of Puma
       - ./public:/usr/share/nginx/html:ro
     environment:
-      - PROXY_UPSTREAM
+      - PROXY_UPSTREAM    
     ports:
-      - 8080:8080
-    command: nginx -g 'daemon off;'
+      - "8080:8080"
+    # command: nginx -g 'daemon off;' # override the one in Dockerfile
+    # entrypoint: 
+
 
   # client:
   #   image:
@@ -54,4 +59,3 @@ services:
 volumes:
   pgdata:
   bundle:
-

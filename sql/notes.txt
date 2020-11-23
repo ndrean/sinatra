@@ -1,3 +1,9 @@
 psql -U postgres
 
 psql -h localhost -d mydatabase -U myuser
+
+magick (or convert) puma.jpeg -resize 180x180! puma.webp
+
+Run Sinatra app in irb console
+`bundle exec irb -I. -r app.rb`
+
