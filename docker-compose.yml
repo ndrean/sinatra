@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   pg:
-    image: postgres:9.6-alpine
+    image: postgres:${PG_VERSION:- 9.6-alpine}
     environment:
       - POSTGRES_URL
     volumes: # create a bind mount to pass file that executes tablea creation by SQL
@@ -14,10 +14,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    tmpfs: /tmp # ?? ot volumes: - type:tmpfs - src,-dst...??
+      args:
+        CACHE_IMAGE: ndrean/webapp:gem-cache
+    # tmpfs: 
+    #   - /tmp # ?? ot volumes: - type:tmpfs - src,-dst...??
     volumes: # to mount bind the code (and get the db logs)
-      - .:/app:cached
+      - .:/usr/app:cached
       - bundle:/usr/local/bundle:ro
+
       # below test by monting docker socket of the host to get # count containers
       # - /var/run/docker.sock:/var/run/docker.sock
     # ports: # removed to be able to run multiple instances of the app: nginx L.B.
@@ -27,6 +31,7 @@ services:
     environment:
       - POSTGRES_URL
       # - PIDFILE
+    
 
   webserver:
     image: ndrean/webserver:latest
@@ -38,9 +43,9 @@ services:
     volumes: # to mount bind the static files for Nginx to serve instead of Puma
       - ./public:/usr/share/nginx/html:ro
     environment:
-      - PROXY_UPSTREAM    
+      - PROXY_UPSTREAM
     ports:
-      - "8080:8080"
+      - 8080:8080
     # command: nginx -g 'daemon off;' # override the one in Dockerfile
     # entrypoint: 
 

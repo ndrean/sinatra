@@ -1,7 +1,7 @@
 FROM debian:buster-slim
 
 RUN apt-get update \
-    && apt-get install -y nginx  \
+    && apt-get install -y nginx  curl\
     && rm /var/log/nginx/access.log && ln -s /dev/stdout /var/log/nginx/access.log \
     && rm /var/log/nginx/error.log && ln -s /dev/stderr /var/log/nginx/error.log \
     && apt-get install gettext-base -y\
@@ -15,7 +15,7 @@ ENV PROXY_UPSTREAM=example.com
 
 COPY proxy.conf /etc/nginx/conf.d/default.tmp
 
-COPY substenv.sh .
+COPY substenv.sh ./
 
 # COPY ./public /usr/share/nginx/html:ro || done in the docker-compose by bind-mont
 

@@ -12,13 +12,23 @@ h2 {
     padding: 10px;
 }
 
+
+kbd {
+    /* border: 2px solid rgb(50, 65, 50); */
+    /* border-radius: 5px; */
+    padding: 5px;
+}
+
+
 .btn-center {
     text-align: center;
+    
 }
 
 #reload {
     font-size: 36px;
-    color:blue
+    color:blue;
+    border: none;
 }
 
 .lb {
@@ -34,24 +44,39 @@ h2 {
     width: 20%
 }
 
-.servers span {
+.servers p {
     text-align: center;
     width: 90%;
     margin: 0;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
 }
 
+/*  all IMG  insde SERVERS */
 .servers img {
-    width:100%;
+    width:80%;
     height:80%;
     object-fit: scale-down
 }
+
+div[data-red="true"] p {
+    color: rgb(52, 17, 248);
+    font-size: bold;
+    font-size: 14px;
+}
+
+div[data-red="true"] img {
+    background-color: rgb(209, 209, 241);
+    opacity: 0.9;
+}
+
 
 .aligned {
     display: flex;
     justify-content: center;
 }
+
+/* th AND td */
 th, td {
     width: fit-content;
     border: solid 1px;

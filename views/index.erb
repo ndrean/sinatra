@@ -4,9 +4,9 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="Description" content="Toy app based on Sinatra & Puma & Sequel & Postgres & Docker & Nginx">
+    <meta name="Description" content="Toy load balancing Docker app based on Nginx, Sinatra & Puma & Sequel & Postgres">
     <link rel="stylesheet" type="text/css" href="index.css">
-    <title>Sinatra Docker!</title>
+    <title>Docker LB</title>
 </head>
 
 <body>
@@ -18,14 +18,15 @@
     The web-server Nginx serves the <strong>static files</strong> (css, png, jpeg,js) instead of Puma.
     </p>
     <p>
-    Nginx  <strong>load balances</strong> with Docker's DNS the 8 instances/containers of the app.
+    Nginx  <strong>load balances</strong> with Docker's DNS the <em>x</em> instances/containers of the app.
     </p>    
-    <code>docker-compose up --scale webapp=8</code> 
+    <code>docker-compose up --scale webapp=x</code> 
     <br>  
-    <p> Each page refresh is recorded in Postgres with the ORM Sequel (using the <em>sequel_pg</em> module), and the logs are saved to '/dev/stdout' (the console) with Sequel.
-    The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
+    <p> Each page refresh  is recorded in Postgres with the ORM Sequel (using the <em>sequel_pg</em> module), and the logs are saved to '/dev/stdout' (the console) with Sequel.</p>
+    <p>The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
     </p>
-    <p class="btn-center"> <button id='reload'>Reload !</button></p>    
+    <p class="btn-center">Run <code>./curlrequests.sh</code> in the console and refresh</p>
+    <p class="btn-center"> <button id='reload'><kbd>Ctrl-R</kbd></button></p>    
     <p>
         <form action="/clean" method="get" class="btn-center" >
             <input type="submit" value="Reset!" style="color:red; font-size:28px">
@@ -35,10 +36,10 @@
     
     <div class="lb">
         <% figures.each do |server| %>
-            <div class="servers" >
-                <img  src="server.png" alt="server" >
-                <span><%= server[:host] if active == server[:host] %>: &nbsp </span>
-                <span><%= server[:count] *100 / counts %> %</span>
+            <div class="servers" data-red="<%= active == server[:host]%>">
+                <img  style="z-index:-1" src="server.png" alt="server" >
+                <p ><%= server[:host]  %>: &nbsp </p>
+                <p><%= server[:count] *  100 / counts %> %</p>
 
             </div>
         <% end %>
