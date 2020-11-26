@@ -20,10 +20,11 @@ services:
     #   - /tmp # ?? ot volumes: - type:tmpfs - src,-dst...??
     volumes: # to mount bind the code (and get the db logs)
       - .:/usr/app:cached
-      - bundle:/usr/local/bundle:ro
+      # - bundle:/usr/local/bundle:ro
 
       # below test by monting docker socket of the host to get # count containers
       # - /var/run/docker.sock:/var/run/docker.sock
+      
     # ports: # removed to be able to run multiple instances of the app: nginx L.B.
     #   - 9292:9292
     depends_on: 

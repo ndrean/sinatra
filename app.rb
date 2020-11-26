@@ -10,6 +10,9 @@ require 'logger'
 
 # Dotenv.load('.env')
 
+# let Nginx serve static files
+set :static, false
+
 set :raise_errors, true
 class App < Sinatra::Base
 

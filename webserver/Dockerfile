@@ -1,4 +1,5 @@
-FROM debian:buster-slim
+# FROM debian:buster-slim
+FROM nginx:latest
 
 RUN apt-get update \
     && apt-get install -y nginx  curl\

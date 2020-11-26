@@ -22,7 +22,11 @@
     </p>    
     <code>docker-compose up --scale webapp=x</code> 
     <br>  
-    <p> Each page refresh  is recorded in Postgres with the ORM Sequel (using the <em>sequel_pg</em> module), and the logs are saved to '/dev/stdout' (the console) with Sequel.</p>
+    <p> We don't expose any port of the running apps, only the proxy is exposed at 8080.
+    The proxy will use Docker's embedded DNS server for container name resolution in the network created by `docker-compose`. 
+    The dns server at 127.0.0.11 is the current default for every Docker container.
+    The ip addresses of the app containers are resolved from inside the Docker container so that e.g. 127.0.0.1 doesn't resolve to your host's ip address</p>
+    <p>Each page refresh  is recorded in Postgres with the ORM Sequel (using the <em>sequel_pg</em> module), and the logs are saved to '/dev/stdout' (the console) with Sequel.</p>
     <p>The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
     </p>
     <p class="btn-center">Run <code>./curlrequests.sh</code> in the console and refresh</p>
@@ -37,7 +41,7 @@
     <div class="lb">
         <% figures.each do |server| %>
             <div class="servers" data-red="<%= active == server[:host]%>">
-                <img  style="z-index:-1" src="server.png" alt="server" >
+                <img  src="server.png" alt="server" >
                 <p ><%= server[:host]  %>: &nbsp </p>
                 <p><%= server[:count] *  100 / counts %> %</p>
 
@@ -78,8 +82,38 @@
         <img class="technos" src="sequel.webp" alt="sequel">
         <img class="technos" src="puma.webp" alt="puma">
     </div>
+    <br>
+    <hr>
+    <div>
+        <p> The bash code to be executed to measure perform is: <code>./curlrequests.sh</code>
+        <pre>
+#!/usr/bin/env bash \n
+main () {
+  for ((i=1;i<=$1;++i)); do
+    curl  -s http://localhost:8080  > /dev/null
+  done 
+} 
+
+gettime(){  # execute a Ruby command
+  ruby -e "puts (Time.now.to_f * 1000).to_i"; 
+}
+
+measure () {
+  start=$(gettime) # saves the output of a command into a variable
+  $1 $2  # execute 'main' with 'variable', which is user's input
+  end=$(gettime)
+  res=$(( end - start))
+  echo "Time: $res ms"
+}
+
+echo "Enter number iterations: " 
+read var
+[[ $var ]] && echo "working..." && measure main "$var"
+        </pre>
+        </p>
+    </div>
     
-    <script src="reload.js"></script>
+    <script src="reload.js" async></script>
     
 </body>
 
