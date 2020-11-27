@@ -2,7 +2,7 @@ body {
     width: 98%;
     margin: 1px auto;
     font-family: Tahoma, Verdana, Arial, sans-serif;
-    text-align: justify;
+    /* text-align: justify; */
 }
 
 h2 {
@@ -47,16 +47,16 @@ kbd {
 
 .servers p {
     text-align: center;
-    width: 90%;
+    width: 80%;
     margin: auto;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
 }
 
-/*  all IMG  insde SERVERS */
+/*  all IMG  inside SERVERS */
 .servers img {
-    width:80%;
-    height:80%;
+    width: 50%;
+    /* height:40%; */
     object-fit: fill;
 }
 
@@ -95,13 +95,16 @@ th, td {
 .technos {
     grid-auto-flow: dense;
     object-fit: scale-down;
+    width:220px;
+    height:auto;
 }
 
-@media (min-width: 540px) {
+@media (min-width: 375px) {
     .tech-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
 }
+
 
 @media (min-width: 720px) {
     .tech-grid {

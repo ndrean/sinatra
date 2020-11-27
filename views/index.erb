@@ -5,7 +5,10 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="Description" content="Toy load balancing Docker app based on Nginx, Sinatra & Puma & Sequel & Postgres">
-    <link rel="stylesheet" type="text/css" href="index.css">
+    <meta name="theme-color" content="#317EFB"/>
+    <link rel="stylesheet" type="text/css" href="index.css">    
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="./site.webmanifest">
     <title>Docker LB</title>
 </head>
 
@@ -41,7 +44,7 @@
     <div class="lb">
         <% figures.each do |server| %>
             <div class="servers" data-red="<%= active == server[:host]%>">
-                <img  src="server.png" alt="server" >
+                <img  src="server.webp"  alt="server" >
                 <p ><%= server[:host]  %>: &nbsp </p>
                 <p><%= server[:count] *  100 / counts %> %</p>
 
@@ -89,7 +92,7 @@
         <pre>
 #!/usr/bin/env bash \n
 main () {
-  for ((i=1;i<=$1;++i)); do
+  for (( i=1; i<=$1; ++i )); do
     curl  -s http://localhost:8080  > /dev/null
   done 
 } 

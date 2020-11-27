@@ -8,6 +8,10 @@ services:
     volumes: # create a bind mount to pass file that executes tablea creation by SQL
       - ./sql/create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
       - pgdata:/var/lib/postgresql/data
+      - .psqlrc:/root/.psqlrc:ro
+      - ./log:/root/log:cached
+    ports:
+      - 5432
 
   webapp: 
     image: ndrean/webapp:latest
@@ -43,6 +47,7 @@ services:
       - webapp
     volumes: # to mount bind the static files for Nginx to serve instead of Puma
       - ./public:/usr/share/nginx/html:ro
+      # - ./tmp/cache:/var/cache/nginx/mycache
     environment:
       - PROXY_UPSTREAM
     ports:

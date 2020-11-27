@@ -23,6 +23,8 @@ class App < Sinatra::Base
     table = DB[:requests].freeze
 
     get '/' do
+        # cache_control :public
+
         host = Socket.gethostname
 
         # # SEQUEL QUERIES
