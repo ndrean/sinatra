@@ -2,46 +2,71 @@ version: '3.8'
 
 services:
   pg:
-    image: postgres:9.6-alpine
+    image: postgres:${PG_VERSION:- 9.6-alpine}
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgrs
-      - POSTGRES_DB=test
-    volumes: # create a bind mount to pass file that executes SQL
+      - POSTGRES_URL
+    volumes: # create a bind mount to pass file that executes tablea creation by SQL
       - ./sql/create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
       - pgdata:/var/lib/postgresql/data
+      - .psqlrc:/root/.psqlrc:ro
+      - ./log:/root/log:cached
+    ports:
+      - 5432
 
   webapp: 
-    image: webapp:wait_for_pg
+    image: ndrean/webapp:latest
     build:
       context: .
       dockerfile: Dockerfile
-    volumes: # to mont bind the code and get the db logs
-      - .:/app
-    # ports:
+      args:
+        CACHE_IMAGE: ndrean/webapp:gem-cache
+    # tmpfs: 
+    #   - /tmp # ?? ot volumes: - type:tmpfs - src,-dst...??
+    volumes: # to mount bind the code (and get the db logs)
+      - .:/usr/app:cached
+      # - bundle:/usr/local/bundle:ro
+
+      # below test by monting docker socket of the host to get # count containers
+      # - /var/run/docker.sock:/var/run/docker.sock
+      
+    # ports: # removed to be able to run multiple instances of the app: nginx L.B.
     #   - 9292:9292
     depends_on: 
       - pg
     environment:
-      - POSTGRES_DB
-      - POSTGRES_PASSWORD
-      - POSTGRES_USER
       - POSTGRES_URL
+      # - PIDFILE
+    
 
   webserver:
-    image: weberserver:wait_for_webapp
-    build: 
+    image: ndrean/webserver:latest
+    build: # when the context is provided, we build the image
       context: ./webserver
       dockerfile: Dockerfile
     depends_on:
       - webapp
-    volumes:
+    volumes: # to mount bind the static files for Nginx to serve instead of Puma
       - ./public:/usr/share/nginx/html:ro
+      # - ./tmp/cache:/var/cache/nginx/mycache
+    environment:
+      - PROXY_UPSTREAM
     ports:
       - 8080:8080
-    command: nginx -g 'daemon off;'
+    # command: nginx -g 'daemon off;' # override the one in Dockerfile
+    # entrypoint: 
 
-  
+
+  # client:
+  #   image:
+  #   build: 
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - POSTGRES_DB
+  #     - POSTGRES_PASSWORD
+  #     - POSTGRES_USER
+  #     - POSTGRES_HOST
+
 volumes:
   pgdata:
-
+  bundle:

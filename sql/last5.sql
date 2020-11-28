@@ -1,0 +1,1 @@
+SELECT * FROM requests ORDER BY requested_at DESC LIMIT 5;

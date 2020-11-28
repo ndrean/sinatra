@@ -1,31 +1,118 @@
 body {
     width: 98%;
-    margin: 0 auto;
+    margin: 1px auto;
     font-family: Tahoma, Verdana, Arial, sans-serif;
-    text-align: justify;
+    /* text-align: justify; */
 }
 
-img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 1px;
-    margin: 1px;
+h2 {
     border: 1px solid;
-    height: 10%;
-    max-width: 20%;
-    object-fit: scale-down
+    border-radius: 5px;
+    margin: 40px;
+    padding: 10px;
 }
 
+
+kbd {
+    /* border: 2px solid rgb(50, 65, 50); */
+    /* border-radius: 5px; */
+    padding: 5px;
+}
+
+
+.btn-center {
+    text-align: center;
+    
+}
+
+#reload {
+    font-size: 36px;
+    color:blue;
+    border: none;
+}
+
+.lb {
+    display:flex;
+    flex-flow: row wrap;
+    align-items: center;
+    text-align: center;
+}
+
+
+.servers {
+    /* width: 20%; */
+    flex-basis: 20%; 
+    /* prefer this instead of width since Flexbox searches for flex-basis. Set auto? */
+}
+
+.servers p {
+    text-align: center;
+    width: 80%;
+    margin: auto;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/*  all IMG  inside SERVERS */
+.servers img {
+    width: 50%;
+    /* height:40%; */
+    object-fit: fill;
+}
+
+div[data-red="true"] p {
+    color: rgb(52, 17, 248);
+    font-size: bold;
+    font-size: 14px;
+}
+
+/* div[data-red="true"] img {
+    background-color: rgb(209, 209, 241);
+    opacity: 0.9;
+} */
+
+
+.aligned {
+    display: flex;
+    justify-content: center;
+}
+
+/* th AND td */
 th, td {
     width: fit-content;
     border: solid 1px;
     padding: 5px 20px;
 }
 
-.aligned {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 95%;
+.tech-grid {
+    display: grid;
+    grid-gap: 1rem;
+    margin: 0 auto;
+    grid-template-columns: repeat(2, 1fr);
+
+}
+
+.technos {
+    grid-auto-flow: dense;
+    object-fit: scale-down;
+    width:220px;
+    height:auto;
+}
+
+@media (min-width: 375px) {
+    .tech-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media (min-width: 720px) {
+    .tech-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (min-width: 900px) {
+    .tech-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }

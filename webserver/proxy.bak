@@ -13,11 +13,16 @@
   log_format my_log ' "Request: $Request, Status: $status, Request_uri: $request_uri, Host: $host, Host: $upstream, Client_IP: $remote_addr, Proxy_IP: $proxy_add_x_forwarded_for, Proxy_Hostname: $proxy_host, Real_IP: $http_x_real_ip, Cache_Status: $upstream_cache_status  "';
   # check tail -f access.log
 
+  # noy needed
+  # upstream webapp {
+  #   server webapp:9292;
+  # }
+
   server {
     server_name webapp.me*; # file /etc/hosts modified & <- if SSL 
     listen 8080  default_server;
 
-    access_log /var/log/nginx/access.log my_log; #<- to watch logs
+    # access_log /var/log/nginx/access.log my_log; <- to watch logs
 
     set $upstream $PROXY_UPSTREAM;
     
@@ -44,6 +49,9 @@
       root /usr/share/nginx/html; 
 
       # return 200 http://webapp:8080$uri; # testing..
+
+      # try first to find the file, and if not, go to Puma
+      try_files $uri @app;
       
       # gzip_static on;
       access_log off;
@@ -51,11 +59,20 @@
       add_header Last-Modified "";    
       add_header ETag "";
 
+      # proxy_ignore_headers  "Set-Cookie";
+      # proxy_hide_header     "Set-Cookie";
+
+      
+
       break;  
     }
 
     # any other request not found by the regex and starting with '/' will be served by @app
-    location / {  
+    location / {
+      try_files $uri @app;
+    }
+
+    location @app {   
       # proxy_pass http://webapp;   <- if 'upstream directive as can't pass env var'
       proxy_pass http://$upstream; #$request_uri; # $request_uri; <- revers proxying
 

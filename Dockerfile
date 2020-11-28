@@ -1,23 +1,28 @@
-FROM ruby:2.7.2-alpine
+FROM ruby:2.7.2-alpine AS base
 
-RUN apk update && apk add build-base postgresql-dev
+RUN gem install bundler:2.1.4
+RUN apk update && apk add build-base postgresql-dev curl net-tools bind-tools
 
-WORKDIR /app
-# if I already bundled myself, then I copy the following files:
-COPY Gemfile  ./
-#Gemfile.lock
+WORKDIR /usr/app
 
-# RUN gem install sinatra  pg dotenv
+# copies the /usr/local/bundle bundle directory from the ndrean/webapp:gem-cache image to our new image.
+COPY --from=ndrean/webapp:gem-cache /usr/local/bundle /usr/local/bundle
 
-# Run below if a Gemfile is provided (Sinatra & Rake)
-RUN gem install bundler:2.1.4 && bundle install
+COPY Gemfile*    ./
+# we only install gems when the Gemfile changed
+RUN bundle install && mkdir -p tmps/pids
 
 COPY . .
 
+# just a default fake value
+ENV POSTGRES_URL=postgres://@pg/test
 
 EXPOSE 9292
 
+# ENTRYPOINT ["/bins/docker-entrypoint.sh"]
 
-CMD ["bundle", "exec", "rackup", "--host", "0.0.0.0", "-p", "9292"]
-# CMD [ "bundle", "exec", "Puma", "--c", "puma.rb", "--host", "0.0.0.0", "-p", "9292"]
-# CMD ["dotenv", "./app.rb"]
+# the app will listen on the public interface of the container, 0.0.0.0, not on the localhost of the container !!
+CMD ["bundle", "exec", "puma", "--config" ,"puma.rb"]
+
+# below is OK but does only charges a default Puma
+# CMD ["bundle", "exec", "rackup", "--host", "0.0.0.0", "-p", "9292"] 

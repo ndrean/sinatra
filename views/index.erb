@@ -1,52 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <link rel="stylesheet" type="text/css" href="index.css">
-    <title>Sinatra Docker!</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="Description" content="Toy load balancing Docker app based on Nginx, Sinatra & Puma & Sequel & Postgres">
+    <meta name="theme-color" content="#317EFB"/>
+    <link rel="stylesheet" type="text/css" href="index.css">    
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="./site.webmanifest">
+    <title>Docker LB</title>
 </head>
 
 <body>
-    <h3>A multi-instances of a Sinatra-Puma app on Docker served by Postgres/Sequel, reverse-proxied by Nginx.</h3>
-    <p> The web-server Nginx serves (not yet) the <strong>static files</strong> (css, png, jpeg) and <strong>load balances</strong> with Docker's DNS the 5 instances/containers of the app.
-    The app saves the queries to the page in a Postgres database powered with the ORM Sequel.</p>
-    <code>docker-compose up --scale webapp=5</code> 
-    <br>  
-    <p> Each page refresh is recorded in Postgres, and the logs are saved to '/dev/stdout' (the console) with Sequel.
-    The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
-    </p>      
-    <div>
-    <%= test %>
-    <hr>    
-    <table class="aligned">
-        <tr>
-            <th>Timestamp</th>
-            <th>Client IP</th>
-            <th>Server (Container)</th>
-            <th>Path</th>
-        </tr>
-        <% queries.each do |query| %>
-            <tr>
-                <td><%= query[:requested_at] %></td>
-                <td><%= query[:ip] %></td>
-                <td><%= query[:host] %></td>
-                <td><%= query[:path] %></td>
-            </tr>
-        <% end %>
-    </table>
-    </div>
-    <hr>
-    <p> Nginx and Docker serves this page with a mount bind of the source code. Any changes
-    in the <strong>/views/index.erb</strong> file will be displayed if the page is refreshed, with <strong>CTRL-R</strong>.
+    <h2>Load balancing instances of a Sinatra-Puma app on Docker served by Postgres/Sequel, reverse-proxied by Nginx.</h2>
+    
+    <p> The app server Puma serves Sinatra for the dynamic part: queries to the database and server redering dynamic html).
     </p>
-    <div class='aligned'>
-<img src="logo.png">
-        <img src="sinatra.jpeg">
-        <img src="nginx.png">
-        <img src="postgres.png">
-        <img src="sequel.png">
-        <img src="puma.jpeg">
+    <p>
+    The web-server Nginx serves the <strong>static files</strong> (css, png, jpeg,js) instead of Puma.
+    </p>
+    <p>
+    Nginx  <strong>load balances</strong> with Docker's DNS the <em>x</em> instances/containers of the app.
+    </p>    
+    <code>docker-compose up --scale webapp=x</code> 
+    <br>  
+    <p> We don't expose any port of the running apps, only the proxy is exposed at 8080.
+    The proxy will use Docker's embedded DNS server for container name resolution in the network created by `docker-compose`. 
+    The dns server at 127.0.0.11 is the current default for every Docker container.
+    The ip addresses of the app containers are resolved from inside the Docker container so that e.g. 127.0.0.1 doesn't resolve to your host's ip address</p>
+    <p>Each page refresh  is recorded in Postgres with the ORM Sequel (using the <em>sequel_pg</em> module), and the logs are saved to '/dev/stdout' (the console) with Sequel.</p>
+    <p>The last logs are displayed below by querying the database. The nginx logs are redirected to STDOUT/STDERROR.        
+    </p>
+    <p class="btn-center">Run <code>./curlrequests.sh</code> in the console and refresh</p>
+    <p class="btn-center"> <button id='reload'><kbd>Ctrl-R</kbd></button></p>    
+    <p>
+        <form action="/clean" method="get" class="btn-center" >
+            <input type="submit" value="Reset!" style="color:red; font-size:28px">
+        </form>
+    </p>
+    <hr>
+    
+    <div class="lb">
+        <% figures.each do |server| %>
+            <div class="servers" data-red="<%= active == server[:host]%>">
+                <img  src="server.webp"  alt="server" >
+                <p ><%= server[:host]  %>: &nbsp </p>
+                <p><%= server[:count] *  100 / counts %> %</p>
+
+            </div>
+        <% end %>
+        
+        
     </div>
+    <hr>  
+        <div class="aligned">
+            <table >
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Client IP</th>
+                    <th>Server (Container)</th>
+                    <th>Path</th>
+                </tr>
+                <% queries.each do |query| %>
+                    <tr>
+                        <td><%= query[:requested_at]     %></td>
+                        <td><%= query[:ip] %></td>
+                        <td><%= query[:host] %></td>
+                        <td><%= query[:path] %></td>
+                    </tr>
+                <% end %>
+            </table>
+        </div> 
+    <hr>
+    <p> The source code is mount bind so any change is the source code only needs `docker-compose up`.</p>
+    <p> The static files  are mont binded to nginx so any changes in the <strong>/views/index.erb</strong> 
+    file will be displayed when the page is refreshed. 
+    </p>
+    <div class='tech-grid'>
+        <img class="technos" src="docker.webp" alt="docker">
+        <img class="technos" src="sinatra.webp" alt="sinatra">
+        <img class="technos" src="nginx.webp" alt="nginx"> 
+        <img class="technos" src="postgres.webp" alt="postgres">
+        <img class="technos" src="sequel.webp" alt="sequel">
+        <img class="technos" src="puma.webp" alt="puma">
+    </div>
+    <br>
+    <hr>
+    <div>
+        <p> The bash code to be executed to measure perform is: <code>./curlrequests.sh</code>
+        <pre>
+#!/usr/bin/env bash \n
+main () {
+  for (( i=1; i<=$1; ++i )); do
+    curl  -s http://localhost:8080  > /dev/null
+  done 
+} 
+
+gettime(){  # execute a Ruby command
+  ruby -e "puts (Time.now.to_f * 1000).to_i"; 
+}
+
+measure () {
+  start=$(gettime) # saves the output of a command into a variable
+  $1 $2  # execute 'main' with 'variable', which is user's input
+  end=$(gettime)
+  res=$(( end - start))
+  echo "Time: $res ms"
+}
+
+echo "Enter number iterations: " 
+read var
+[[ $var ]] && echo "working..." && measure main "$var"
+        </pre>
+        </p>
+    </div>
+    
+    <script src="reload.js" async></script>
     
 </body>
 

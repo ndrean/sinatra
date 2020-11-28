@@ -1,57 +1,66 @@
-require 'sinatra'
-require 'erb'
-require 'dotenv'
-require 'sequel'
+# All the following 
+# require 'sinatra'
+# require 'erb'
+# require 'dotenv'
+# require 'pg'
+# require 'sequel' 
+# using the C library "sequel_pg" that overrides Ruby's implementation
+
 require 'logger'
-require 'sinatra'
-require 'pg'
 
+# Dotenv.load('.env')
 
-Dotenv.load('.env')
+# let Nginx serve static files
+set :static, false
 
-# static files served in public
-# set :public_folder, 'public'
-
-set :bind, '0.0.0.0'
-set :port, 9292
-
-# the 'bundle exec rackup' needs class App<Sinatra, and then run 'bundle exec rackup' and navigate to port 9292
 set :raise_errors, true
-
 class App < Sinatra::Base
-    db_conf = {
-        adapter: :postgres,
-        encoding: 'unicode',
-        pool: 2,
-        user: ENV.fetch('POSTGRES_USER'),
-        password: ENV.fetch('POSTGRES_PASSWORD'),
-        host: ENV.fetch('POSTGRES_HOST'),
-        port: 5432,
-        database: ENV.fetch('POSTGRES_DB'),
-        max_connections: 10, 
-        logger: Logger.new('/dev/stdout') # /log/db/log
-    }.freeze
-    
-    DB = Sequel.connect(db_conf)
+
+    DB = Sequel.connect(
+            ENV.fetch("POSTGRES_URL"),
+            logger: Logger.new('/dev/stdout')
+        )
+    table = DB[:requests].freeze
 
     get '/' do
-        req = DB[:requests] #.delete to cleanup
-        req.insert(
+        # cache_control :public
+
+        host = Socket.gethostname
+
+        # # SEQUEL QUERIES
+        table.insert(
             ip: request.ip,   
-            host: Socket.gethostname, 
+            host: host, 
             path: request.path_info,  
-            requested_at: Time.now
+            requested_at: Time.now.strftime("%H:%M:%S:%L")
         )
-        str = File.dirname(__FILE__) +'/public'
-        queries = req.reverse(:requested_at).limit(10)
-        erb :index , locals: {  queries: queries, test: str.to_s }
+
+        # test inline SQL / Sequel: aggregating by count
+        # hits = table.with_sql("
+        #     SELECT host, COUNT(*) AS count 
+        #     FROM requests           
+        #     GROUP BY host
+        #     ORDER BY count DESC 
+        #     ")
+        
+        erb :index , locals: {  
+            queries: table.reverse(:requested_at).limit(6),
+            active: host,
+            figures: table.group_and_count(:host),
+            counts: table.count 
+        }
     end
+
+    get '/clean' do
+        table.delete
+        redirect env['HTTP_REFERER']
+    end
+
+    # Count number of active containers: needed unix socket connection with Docker daemon
+    # get '/count' do
+        # result = %x(curl --unix-socket /var/run/docker.sock http://localhost/v1.40/containers/json)
+        # JSON.parse(result).length.to_s
+        # redirect home
+    # end
+
 end
-
-# File.open('log/requests.txt', 'a+') do |f|
-#      f.puts("IP: #{query[:ip]}, Server: #{query[:server]}, URI: #{query[:path]}, Time: #{query[:time]}, URL: #{query[:url]}\n")
-# end
-# queries = DB.run("SELECT ip, path, host, requested_at FROM requests ORDER BY id DESC LIMIT 5;")        
-
-
-# not use Rack => no class, just: get '/' { erb :index }, then "ruby App.rb" and go to port 4567
