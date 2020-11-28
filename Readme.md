@@ -1,3 +1,82 @@
+# Nginx config on Docker to serve multiple containerized apps
+
+```bash
+  proxy_cache_path /var/cache/nginx/mycache levels=1:2 keys_zone=mycache:1m inactive=10m;
+
+
+  # mapping between file type and expires length for browser caching;
+  map $sent_http_content_type $expires {
+      default                    off;
+      text/html                  epoch;
+      text/css                   max;
+      application/javascript     max;
+      ~image/                    max;
+  }
+
+  log_format my_log ' "Request: $Request, Status: $status, Request_uri: $request_uri, Host: $host, Host: $upstream, Client_IP: $remote_addr, Proxy_IP: $proxy_add_x_forwarded_for, Proxy_Hostname: $proxy_host, Real_IP: $http_x_real_ip, Cache_Status: $upstream_cache_status  "';
+  # check tail -f access.log
+
+  server {
+    server_name webapp.me*; # file /etc/hosts modified & <- if SSL
+    listen 8080  default_server;
+
+    access_log /var/log/nginx/access.log my_log; #<- to watch logs
+
+    set $upstream $PROXY_UPSTREAM;
+
+    proxy_set_header  Host            $upstream;  # $http_host needed for Rails ??
+    proxy_set_header Connection       "";
+    proxy_set_header  X-Real-IP       $remote_addr; # client IP adress
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    # configure a resolver for Nginx with the address of your actual DNS resolver.
+    resolver 127.0.0.11:53  valid=1s; # <- Docker network DNS resolver
+
+    expires   $expires;       # reading the mapping file/$expires
+
+    # Proxy-caching by Nginx
+    proxy_cache       mycache;
+    proxy_cache_valid 60m;
+    add_header        X-Proxy-Cache $upstream_cache_status;
+    proxy_cache_key   $scheme$request_method$host$request_uri;
+
+    location ~ \.(jpeg|css|png|js|webp|ico)$ {
+      # since we run nginx in a separate container from the app, then we need to copy
+      # the static files into the nginx container. We do this with a bind, and tthe files
+      # are located in the folder below.
+      root /usr/share/nginx/html;
+
+      # return 200 http://webapp:8080$uri; # testing..
+
+      # gzip_static on;
+      access_log off;
+      add_header Cache-Control public;
+      add_header Last-Modified "";
+      add_header ETag "";
+
+      break;
+    }
+
+    # any other request not found by the regex and starting with '/' will be served by @app
+    location / {
+      # proxy_pass http://webapp;   <- if 'upstream directive as can't pass env var'
+      proxy_pass http://$upstream; #$request_uri; # $request_uri; <- revers proxying
+
+      gzip_static on;
+      proxy_pass_header Authorization;
+      proxy_http_version 1.1;
+      proxy_ssl_server_name on;
+
+      proxy_buffering       off;
+      proxy_read_timeout    5s;
+      proxy_redirect        off;
+      proxy_ssl_verify      off;
+      client_max_body_size  0;
+    }
+  }
+
+```
+
 # Postgres & ORM Sequel
 
 gem 'pg'
@@ -79,7 +158,7 @@ Sequel::Seeder.apply(DB,"db/seeds")
 
 > crop images and change format with Imagemagick
 
-`magick (or convert) puma.jpeg -resize 180x180! puma.webp`
+`magick convert puma.jpeg -resize 180x180! puma.webp`
 
 > Sinatra console (IRB)
 
@@ -142,3 +221,5 @@ To avoid to copy files into the container such as /tmp/pids/, you exclude them b
 `docker-compose down`
 Open a container for exploration during execution:
 `docker-compose exec webapp sh`
+Scale up:
+`docker-compose up --scale webapp=2``
